@@ -100,6 +100,25 @@ def parse_args():
     return active_args
 
 
+def string_to_list(foo):
+   return_string = foo[1:-1]
+   return_string = return_string.split(",")
+   new = []
+   for x in return_string:
+       x = x.replace(' ', '')
+       new.append(x)
+   return new
+
+
+def string_to_done(foo):
+   for bar in foo:
+       if bar[0] == '[':
+           bar = string_to_list(bar)
+   return foo
+
+
+
+
 def clean_up():
     files = ['./ansible/env/extravars', './ansible/env/settings', './ansible/inventory/hosts.json']
     for filename in files:
@@ -114,7 +133,7 @@ def main():
 
     arg_vars = parse_args()
 
-    args= parser.parse_args()
+    args= string_to_done(parser.parse_args())
 
     #create inventroy
     inventory = {}
@@ -161,22 +180,22 @@ def main():
     # 		]
     # }
 
-    arg_vars = {
-		"gluster_infra_fw_ports": [
-			"2049/tcp",
-			"54321/tcp",
-			"5900/tcp",
-			"5900-6923/tcp",
-			"5666/tcp",
-			"16514/tcp"
-		],
-		"gluster_infra_fw_permanent": True,
-		"gluster_infra_fw_state": "enabled",
-		"gluster_infra_fw_zone": "public",
-		"gluster_infra_fw_services": [
-			"glusterfs"
-		]
-	}
+ #    arg_vars = {
+	# 	"gluster_infra_fw_ports": [
+	# 		"2049/tcp",
+	# 		"54321/tcp",
+	# 		"5900/tcp",
+	# 		"5900-6923/tcp",
+	# 		"5666/tcp",
+	# 		"16514/tcp"
+	# 	],
+	# 	"gluster_infra_fw_permanent": True,
+	# 	"gluster_infra_fw_state": "enabled",
+	# 	"gluster_infra_fw_zone": "public",
+	# 	"gluster_infra_fw_services": [
+	# 		"glusterfs"
+	# 	]
+	# }
 
     settings = {"suppress_ansible_output": False}
 
@@ -187,7 +206,7 @@ def main():
     r = ansible_runner.run(private_data_dir = directory,
                            playbook = playbook,
                            inventory = inventory,
-                           extravars = arg_vars,
+                           extravars = args,
                            #verbosity = 3,
                            settings = settings)
     clean_up()
